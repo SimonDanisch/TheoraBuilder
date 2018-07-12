@@ -1,0 +1,40 @@
+language: julia
+os:
+  - linux
+julia:
+  - 0.6
+notifications:
+  email: false
+git:
+  depth: 99999999
+cache:
+  timeout: 1000
+  directories:
+    - downloads
+env:
+  global:
+    - BINARYBUILDER_DOWNLOADS_CACHE=downloads
+    - BINARYBUILDER_AUTOMATIC_APPLE=false
+sudo: required
+
+# Before anything else, get the latest versions of things
+before_script:
+  - julia -e 'Pkg.clone("https://github.com/JuliaPackaging/BinaryProvider.jl")'
+  - julia -e 'Pkg.clone("https://github.com/JuliaPackaging/BinaryBuilder.jl"); Pkg.build()'
+
+script:
+  - julia build_tarballs.jl
+
+
+deploy:
+    provider: releases
+    api_key:
+        # Note; this api_key is only valid for SimonDanisch/TheoraBuilder; you need
+        # to make your own: https://docs.travis-ci.com/user/deployment/releases/
+        secure: B7/gNsHUcve7MQHSLtEyG41V9XYFBVfC0UUJbvdTvI3I3qfGQyub1wjxTCfuLaibHwRu7JfwE2b2PCkCzV5LccAfqpSr5Bpk3sbO+oQo0JiQTVF84UTRSf2JueI6RN+eFjU7ufcaxR6+6rX42biEh8wT0/av2uAnPzSSWWdT10IKBTElecmE41HWgtXTx/8jtdJP73c8tvHU45FAKOheh3qDjPpiv9uZG6/3D3Cn9eaCWPDS7+8XnhV6wCj4VDK1oqKltlPryImrb6626nWrLfK3dWuLqTvbzVUp3JROYtw7htVKrzgO5efUTDrOHjugodnLMC88uZJpo4oiFtxUw1bjIAK8M9Z6Mm9/XACkL0tMeqHYhupIA91Tc5Ceddg7xEHXP8M84pE8EaKPkllnhI6RRX2oO4BLfTdv7tBOMeCKKghJ2IksnAXLkHKO/rkpVlwQsXnk5otHWOvhYyTdUbBhDHT1SXh+3bAnMpm8s360zSnrHoqvaZhDuV2aUbMRi/UYKjzF3eMM95k7PP6Q094T0vLkdYOs8oJ2xVp3Mq/RKUD8Jb0J5I1or2WEJm2jU+XNjZjlVAMVkErZpUKpTecpGDe6N9Upxq6qBgPUvay350IgXZfin0o+4xva/QF7MTe1tLCVWPVbk7ssTybpTgY63pSNChXFmJWro/OA8bM=
+    file_glob: true
+    file: products/*
+    skip_cleanup: true
+    on:
+        repo: SimonDanisch/TheoraBuilder
+        tags: true
